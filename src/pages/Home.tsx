@@ -3,21 +3,28 @@ import { FlatList, Platform, StyleSheet, Text, TextInput, View } from 'react-nat
 import { Button } from '../components/Button';
 import { SkillCard } from '../components/SkillCard';
 
+interface SkillData{
+  id: string;
+  name: string;
+}
+
 export function Home(){
-  const [newSkill, setNewSkill] = useState('');
-  const [mySkills, setMySkills] = useState([
-    'React',
-    'React Native',
-    'Node JS',
-    'JavaScript',
-    'TypeScript',
-    'Styled Components',
-    'HTML',
-    'CSS',
-  ]);
+  const [newSkill, setNewSkill] = useState<string>('');
+  const [mySkills, setMySkills] = useState<SkillData[]>([]);
 
   function handleAddNewSkill(){
-    setMySkills(oldState => [...oldState, newSkill])
+    const data = {
+      id: String(new Date().getTime()),
+      name: newSkill
+    }
+
+    setMySkills(oldState => [...oldState, data])
+  }
+
+  function handleRemoveSkill(id: string){
+    setMySkills(oldState => oldState.filter(
+      skill => skill.id !== id
+    ))
   }
 
   return(
@@ -30,7 +37,10 @@ export function Home(){
         onChangeText={setNewSkill}
       />
       
-      <Button onPress={handleAddNewSkill} />
+      <Button 
+        title="Add"
+        onPress={handleAddNewSkill}
+      />
 
       <Text style={[styles.title, { marginVertical: 50 }]}>
         My Skills
@@ -38,8 +48,13 @@ export function Home(){
       
       <FlatList 
         data={mySkills}
-        keyExtractor={item => item}
-        renderItem={({ item }) => (<SkillCard skill={item} />)}
+        keyExtractor={item => item.id}
+        renderItem={({item}) => (
+          <SkillCard 
+            skill={item.name}
+            onPress={() => handleRemoveSkill(item.id)}
+          />
+        )}
       />
     </View>
   )
